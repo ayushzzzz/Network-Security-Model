@@ -5,4 +5,7 @@ pymongo
 certifi
 pymongo>=4.5.0
 scikit-learn 
+scipy
+dill
+pyaml
 ##-e .

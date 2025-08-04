@@ -3,7 +3,7 @@ from network_security.exception.exception import NetworkSecurityException
 from network_security.logging.logger import logging
 
 
-## configuration 
+
 from network_security.entity.config_entity import DataIngestionConfig
 from network_security.entity.artifact_entity import DataIngestionArtifact
 
@@ -85,5 +85,3 @@ class DataIngestion:
 
         except Exception as e:
             raise NetworkSecurityException(e,sys)
-        
-    
