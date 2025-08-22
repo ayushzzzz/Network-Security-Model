@@ -195,3 +195,4 @@ cython_debug/
 test_mongodb.py
 Artifacts/
 logs/
+mlruns/ 
