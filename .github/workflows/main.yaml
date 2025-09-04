@@ -31,8 +31,8 @@ jobs:
 
       - name: Install Utilities
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq unzip
+          sudo dnf update
+          sudo dnf install -y jq unzip
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -43,7 +43,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v1
 
       - name: Check if ECR repo exists
         run: |
