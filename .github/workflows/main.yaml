@@ -33,17 +33,41 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Docker
+      - name: Install Docker (clean install to avoid conflicts)
         run: |
+          # Remove old Docker/containerd packages
+          sudo apt-get remove -y docker docker-engine docker.io containerd runc || echo "No old packages"
+
+          # Update package index
           sudo apt-get update
-          sudo apt-get install -y docker.io
+          sudo apt-get upgrade -y
+
+          # Install dependencies
+          sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+          # Add Docker GPG key
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+          # Add Docker repository
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+          # Install Docker
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+          # Verify Docker
+          docker --version
+          docker run hello-world
 
       - name: Build Docker image locally
         run: |
-          echo "Building Docker image (no push)..."
+          echo "Building Docker image (local test)..."
           docker build -t networksecurity:test .
 
-      - name: Test Docker image locally
+      - name: Run Docker container locally
         run: |
           echo "Running Docker container (local test)..."
           docker run -d -p 8080:8080 --name networksecurity_test networksecurity:test
