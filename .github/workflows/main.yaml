@@ -47,6 +47,7 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
+          echo "Logging in to ECR..."
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
           docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_LOGIN_URI }}
 
@@ -58,7 +59,7 @@ jobs:
         run: |
           echo "Building Docker image..."
           docker build -t $ECR_URI/$ECR_REPOSITORY:$IMAGE_TAG .
-          
+
           echo "Pushing Docker image to ECR..."
           docker push $ECR_URI/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -81,6 +82,7 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
+          echo "Logging in to ECR..."
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
           docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_LOGIN_URI }}
 
@@ -90,11 +92,15 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: latest
         run: |
+          echo "Pulling Docker image..."
           docker pull $ECR_URI/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Stop & remove old container if running
         run: |
-          docker ps -q --filter "name=networksecurity" | grep -q . && docker stop networksecurity && docker rm -fv networksecurity || echo "No running container found"
+          echo "Stopping old container if it exists..."
+          docker ps -q --filter "name=networksecurity" | grep -q . && \
+          docker stop networksecurity && docker rm -fv networksecurity || \
+          echo "No running container found"
 
       - name: Run Docker Image
         env:
@@ -102,6 +108,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: latest
         run: |
+          echo "Starting new Docker container..."
           docker run -d -p 8080:8080 --ipc="host" --name=networksecurity \
             -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
@@ -110,4 +117,5 @@ jobs:
 
       - name: Clean up old images and containers
         run: |
+          echo "Cleaning up old Docker images..."
           docker system prune -f
